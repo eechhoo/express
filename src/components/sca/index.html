@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>扫描</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+</head>
+<body>
+    <!-- 摄像头展示区域 -->
+    <div id="canvanCode"></div>
+    <script>
+        //Quagga库
+        Quagga.init({
+            inputStream : {
+                name : "Live",
+                type : "LiveStream",
+                target: document.querySelector('#canvanCode')
+            },
+            decoder : {
+                readers : ["ean_reader",'code_39_reader'],
+                debug: {
+                    drawBoundingBox: false,
+                    showFrequency: false,
+                    drawScanline: false,
+                    showPattern: false,
+                },
+                multiple: false
+            }
+        }, ()=>{
+            //打开摄像头
+            Quagga.start();
+            Quagga.onDetected(function(data){
+                console.log(data.codeResult.code);
+                //data.codeResult.code就是摄像头扫描出的商品条形码
+				//Tip:只要摄像头一识别到条形码就会显示在控制台，有时候一识别就显示十几行条形码，所以我们可以使用节流，减少扫码的次数。
+            });
+        });
+    </script>
+</body>
+</html>

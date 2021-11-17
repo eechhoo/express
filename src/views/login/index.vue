@@ -62,7 +62,7 @@ export default {
                         if(respUser.flag){
                             localStorage.setItem("uid",JSON.stringify(respUser.data));
                             localStorage.setItem("token",resp.data.token);
-                            if(this.form.username.startsWith("u")){
+                            if(this.form.username.startsWith("1")){
                               this.$router.push("/users")
                             }
                             if(this.form.username.startsWith("e")){

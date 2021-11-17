@@ -3,7 +3,7 @@
     <span class="title">校园快递信息管理平台aaa</span>
     <el-dropdown @command="handleCommand">
       <span class="el-dropdown-link">
-        {{ user.nickname }}<i class="el-icon-arrow-down el-icon--right"></i>
+        {{ user.username }}<i class="el-icon-arrow-down el-icon--right"></i>
       </span>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item command="a">修改密码</el-dropdown-item>
@@ -107,6 +107,7 @@ export default {
       });
     },
     resetForm(formName) {
+      console.log(this.user,"user");
       this.$refs[formName].resetFields();
     },
     handleCommand(command) {

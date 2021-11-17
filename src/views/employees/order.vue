@@ -1,95 +1,190 @@
 <template>
   <div>
-      <div class="tools">
-        <div class="filter">
-          <span>物流状态：</span>
-          <el-select v-model="selectStatus" @change="handleStatusChange">
-            <el-option label="所有" value=""></el-option>
-            <el-option label="在途" value="1"></el-option>
-            <el-option label="到达驿站" value="0"></el-option>
-          </el-select>
-        </div>
+      <el-collapse>
+        <el-collapse-item title="未处理订单" name="1">
+          <el-table
+            :data="awaitOrders"
+            style="width: 100%">
+            <el-table-column
+              prop="name"
+              label="寄件人姓名"
+              width="100">
+            </el-table-column>
+            <el-table-column
+              prop="address"
+              label="寄件地址"
+              min-width="300">
+            </el-table-column>
+            <el-table-column
+              prop="phone"
+              label="寄件人电话号码">
+            </el-table-column>
+            <el-table-column
+              prop="sendName"
+              label="收件人姓名"
+              width="100">
+            </el-table-column>
+            <el-table-column
+              prop="sendAddress"
+              label="收件地址"
+              width="300">
+            </el-table-column>
+            <el-table-column
+              prop="sendPhone"
+              label="收件人电话号码">
+            </el-table-column>
 
-        <div class="search">
-          <el-input
-            placeholder="查询快递单号"
-            prefix-icon="el-icon-search"
-            v-model="search"
-            class="search-input"
-            @change="this.searchChange"
-          >
-          </el-input>
-        </div>
-      </div>
+            <el-table-column
+              fixed="right"
+              label="操作"
+              width="100">
+              <template slot-scope="scope">
+                <el-button @click="handleDetail(scope.row)" type="text" size="small">处理订单</el-button>
+                <el-button @click="handleDeleted(scope.row)" type="text" size="small">删除订单</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-collapse-item>
 
-        <el-row :gutter="18">
-          <el-col :span="9">
-              <el-badge :value="12" class="item">
-                <el-card shadow="hover" class='pack-card'>
-                <i class="el-icon-box"></i>
-                未处理订单
-                </el-card>
-            </el-badge>
-          </el-col>
-          <el-col :span="9">
-            <el-card shadow="hover" class='pack-card'>
-              <i class="el-icon-timer"></i>
-              已处理订单
-            </el-card>
-          </el-col>
-        </el-row>
+        <el-collapse-item title="所有订单" name="4">
+           <el-table
+            :data="allOrders"
+            style="width: 100%">
+            <el-table-column
+              prop="name"
+              label="寄件人姓名"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="address"
+              label="寄件地址"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="phone"
+              label="寄件人电话号码">
+            </el-table-column>
+            <el-table-column
+              prop="sendName"
+              label="收件人姓名"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="sendAddress"
+              label="收获地址"
+              width="180">
+            </el-table-column>
+            <el-table-column
+              prop="sendPhone"
+              label="收件人电话号码">
+            </el-table-column>
+                        <el-table-column
+              fixed="right"
+              label="操作"
+              width="100">
+              <template slot-scope="scope">
+                <!-- <el-button @click="handleConfirm(scope.row)" type="text" size="small">处理完成</el-button> -->
+                <el-button @click="handleDeleted(scope.row)" type="text" size="small">删除订单</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-collapse-item>
+      </el-collapse>
 
-        <div class="list">
-        <el-table :data="tableData" stripe style="width: 100%; margin-top:100px" class="el-table"  >
-          <el-table-column prop="msg" label="新增订单"> </el-table-column>
-        </el-table>
-
-      </div>
-
-  </div>
+</div>
 
 
 </template>
 
 <style>
-.el-table__row--striped{
-  background-color: #fff;
-}
-.search{
-  margin-left: 10px;
-}
-.el-icon-takeaway-box:before {
-    font-size: 40px;
-}
-.pack-card{
-  height: 100px;
-  line-height: 50px;
-}
-.tools {
-    display: flex;
-    margin: 15px 0;
-  }
-  .el-badge {
-      width: 100%;
-    display: block;
-}
 
 </style>
 
 <script>
+
+import OrderApi from "@/api/order";
   export default {
     data() {
       return {
-        tableData: [{
-            msg: '叮咚',
-          } ],
-        selectStatus:'',
-        search:''
+        allOrders:[],
+        awaitOrders:[],
+        searchMap: {
+          status: "0",
+        },
       }
     },
+    created(){
+      this.fetchData()
+    },
     methods:{
-      handleStatusChange(){},
-      searchChange(){}
+      fetchData() {
+        OrderApi
+            .search(this.currentPage, this.pageSize, this.searchMap)
+            // .getOrderList()
+          .then((response) => {
+            const resp = response.data;
+            // this.total = resp.data.total;
+            this.awaitOrders = resp.data.rows;
+          });
+        OrderApi
+            .search(this.currentPage, this.pageSize, { status: "1",})
+            // .getOrderList()
+          .then((response) => {
+            const resp = response.data;
+            // this.total = resp.data.total;
+            this.allOrders = resp.data.rows;
+          });
+      },
+      handleDetail(row){
+        // console.log(row,"row");
+        // this.handleAdd();
+         this.$prompt('请输入金额', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        }).then(({ value }) => {
+          this.$message({
+            type: 'success',
+          });
+          row.money=value
+          row.status="1"
+        })
+
+        OrderApi.update(row).then((response) => {
+          const resp = response.data;
+          if (resp.flag) {
+            this.storage = resp.data;
+          }
+        });
+              console.log(row,"row");
+      },
+
+
+
+      handleDeleted(row){
+        this.$confirm("确定要删除此条信息吗?", "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning",
+              })
+                .then(() => {
+                  OrderApi.deleteById(row._id).then((response) => {
+                    const resp = response.data;
+                    this.$message({
+                      type: resp.flag ? "success" : "error",
+                      message: resp.message,
+                    });
+                    if (resp.flag) {
+                      this.fetchData();
+                    }
+                  });
+                })
+                .catch(() => {
+                  this.$message({
+                    type: "info",
+                    message: "已取消删除",
+                  });
+                });
+      },
     }
   };
 </script>
